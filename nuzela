@@ -1,0 +1,421 @@
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local TextChatService = game:GetService("TextChatService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+
+local method = {
+    ["a"] = "ส", ["b"] = "ხ", ["c"] = "c", ["d"] = "ძ", ["e"] = "е", ["f"] = "f",
+    ["g"] = "g", ["h"] = "һ", ["i"] = "і", ["j"] = "j", ["k"] = "ḳ", ["l"] = "ӏ",
+    ["m"] = "ｍ", ["n"] = "ฑ", ["o"] = "ჿ", ["p"] = "р", ["q"] = "q", ["r"] = "ꞅ",
+    ["s"] = "ธ", ["t"] = "ṭ", ["u"] = "ม", ["v"] = "v", ["w"] = "พ", ["x"] = "x",
+    ["y"] = "у", ["z"] = "ⴭ", ["F"] = "ꜰ", ["C"] = "ᴄ", ["D"] = "Ḍ", ["E"] = "ᴇ",
+    ["H"] = "Ḥ", ["K"] = "K", ["I"] = "l", ["N"] = "Ṇ", ["O"] = "ᴏ", ["P"] = "ᴘ",
+    ["R"] = "R", ["S"] = "ꜱ", ["T"] = "ᴛ", ["G"] = "Ⴚ", ["A"] = "ᴀ", ["J"] = "ᴊ",
+    ["M"] = "ᴍ", ["U"] = "ᴜ", ["V"] = "ᴠ", ["W"] = "ᴡ", ["Z"] = "ᴢ", [" "] = "\31"
+}
+
+local function convertToUnicode(text)
+    local out = {}
+    for i = 1, #text do
+        local ch = text:sub(i,i)
+        table.insert(out, method[ch] or ch)
+    end
+    return table.concat(out)
+end
+
+
+local randomMessages = {
+    "abcdfghjkl/",
+}
+
+
+local existing = playerGui:FindFirstChild("SpectreBypasser")
+if existing then existing:Destroy() end
+
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SpectreBypasser"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,0,0,0)
+frame.Position = UDim2.new(0.5,0,0.5,0)
+frame.AnchorPoint = Vector2.new(0.5,0.5)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,25)
+frame.BackgroundTransparency = 0.15
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke", frame).Color = Color3.fromRGB(35,35,40)
+
+local title = Instance.new("TextLabel")
+title.Text = "Nuzela Bypasser"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.BackgroundTransparency = 1
+title.Position = UDim2.new(0,20,0,12)
+title.Size = UDim2.new(1,-40,0,30)
+title.Parent = frame
+title.ZIndex = 3
+
+
+local function createImageButton(size, pos, asset)
+    local btn = Instance.new("ImageButton")
+    btn.Size = size
+    btn.Position = pos
+    btn.AnchorPoint = Vector2.new(1,0)
+    btn.BackgroundTransparency = 1
+    btn.Image = asset
+    btn.ScaleType = Enum.ScaleType.Fit
+    btn.ZIndex = 3
+    btn.Parent = frame
+    btn.MouseEnter:Connect(function() btn.ImageColor3 = Color3.fromRGB(220,220,220) end)
+    btn.MouseLeave:Connect(function() btn.ImageColor3 = Color3.fromRGB(255,255,255) end)
+    return btn
+end
+
+local closeButtonImg = createImageButton(UDim2.new(0,30,0,25), UDim2.new(1,-5,0,5), "rbxassetid://103344771690872")
+local minimizeButtonImg = createImageButton(UDim2.new(0,30,0,25), UDim2.new(1,-40,0,5), "rbxassetid://11396189385")
+
+
+local profileFrame = Instance.new("Frame")
+profileFrame.Size = UDim2.new(0.9,0,0,70)
+profileFrame.Position = UDim2.new(0.05,0,0.16,0)
+profileFrame.BackgroundColor3 = Color3.fromRGB(25,25,30)
+profileFrame.BackgroundTransparency = 0.1
+profileFrame.Parent = frame
+Instance.new("UICorner", profileFrame).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke", profileFrame).Color = Color3.fromRGB(40,40,45)
+profileFrame.ZIndex = 2
+
+local thumbType = Enum.ThumbnailType.HeadShot
+local thumbSize = Enum.ThumbnailSize.Size100x100
+local content = ""
+pcall(function()
+    content = Players:GetUserThumbnailAsync(player.UserId, thumbType, thumbSize)
+end)
+
+local playerImage = Instance.new("ImageLabel")
+playerImage.Size = UDim2.new(0,50,0,50)
+playerImage.Position = UDim2.new(0,10,0,10)
+playerImage.BackgroundTransparency = 1
+playerImage.Image = content or ""
+playerImage.Parent = profileFrame
+Instance.new("UICorner", playerImage).CornerRadius = UDim.new(1,0)
+playerImage.ZIndex = 3
+
+local welcomeLabel = Instance.new("TextLabel")
+welcomeLabel.Size = UDim2.new(0.6,0,1,0)
+welcomeLabel.Position = UDim2.new(0,70,0,0)
+welcomeLabel.Text = "Welcome, "..player.Name.."!"
+welcomeLabel.Font = Enum.Font.GothamBold
+welcomeLabel.TextSize = 18
+welcomeLabel.TextColor3 = Color3.fromRGB(255,255,255)
+welcomeLabel.BackgroundTransparency = 1
+welcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+welcomeLabel.Parent = profileFrame
+welcomeLabel.ZIndex = 3
+
+
+local betaBadge = Instance.new("Frame")
+betaBadge.Size = UDim2.new(0,60,0,24)
+betaBadge.Position = UDim2.new(1,-90,0,22)
+betaBadge.AnchorPoint = Vector2.new(0,0)
+betaBadge.BackgroundTransparency = 0
+betaBadge.Parent = profileFrame
+Instance.new("UICorner", betaBadge).CornerRadius = UDim.new(0,7)
+betaBadge.ZIndex = 3
+
+local betaGradient = Instance.new("UIGradient")
+betaGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0,120,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(135,206,250))
+}
+betaGradient.Rotation = 0
+betaGradient.Parent = betaBadge
+
+RunService.RenderStepped:Connect(function()
+    betaGradient.Rotation = (betaGradient.Rotation + 0.5) % 360
+end)
+
+local betaText = Instance.new("TextLabel")
+betaText.Size = UDim2.new(1,0,1,0)
+betaText.BackgroundTransparency = 1
+betaText.Text = "BETA"
+betaText.Font = Enum.Font.GothamBold
+betaText.TextSize = 14
+betaText.TextColor3 = Color3.fromRGB(255,255,255)
+betaText.Parent = betaBadge
+betaText.ZIndex = 4
+
+local inputFrame = Instance.new("Frame")
+inputFrame.Size = UDim2.new(0.85,0,0,45)
+inputFrame.Position = UDim2.new(0.075,0,0.45,0)
+inputFrame.BackgroundColor3 = Color3.fromRGB(25,25,30)
+inputFrame.BackgroundTransparency = 0.1
+inputFrame.Parent = frame
+Instance.new("UICorner", inputFrame).CornerRadius = UDim.new(0,8)
+
+local inputStroke = Instance.new("UIStroke")
+inputStroke.Color = Color3.fromRGB(40,40,45)
+inputStroke.Parent = inputFrame
+inputStroke.Thickness = 2
+
+inputFrame.ZIndex = 2
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1,-10,1,0)
+box.Position = UDim2.new(0,5,0,0)
+box.BackgroundTransparency = 1
+box.Text = ""
+box.Font = Enum.Font.Gotham
+box.TextSize = 16
+box.TextColor3 = Color3.fromRGB(255,255,255)
+box.ClearTextOnFocus = false
+box.Parent = inputFrame
+box.ZIndex = 3
+
+local placeholder = Instance.new("TextLabel")
+placeholder.Text = "Bypass here..."
+placeholder.Font = Enum.Font.Gotham
+placeholder.TextSize = 16
+placeholder.TextColor3 = Color3.fromRGB(150,150,150)
+placeholder.BackgroundTransparency = 1
+placeholder.Size = UDim2.new(1,-10,1,0)
+placeholder.Position = UDim2.new(0,5,0,0)
+placeholder.Parent = inputFrame
+placeholder.ZIndex = 2
+
+
+box:GetPropertyChangedSignal("Text"):Connect(function()
+    if box.Text ~= "" then
+        TweenService:Create(placeholder, TweenInfo.new(0.2), {TextTransparency=1}):Play()
+    else
+        TweenService:Create(placeholder, TweenInfo.new(0.2), {TextTransparency=0}):Play()
+    end
+end)
+
+
+box.Focused:Connect(function()
+    TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(0,120,255)}):Play()
+end)
+
+box.FocusLost:Connect(function(enterPressed)
+    TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(40,40,45)}):Play()
+    if enterPressed then sendBypassed() end
+end)
+
+
+
+local function createGradientButton(size, position, iconAsset)
+    local btn = Instance.new("TextButton")
+    btn.Size = size
+    btn.Position = position
+    btn.BackgroundTransparency = 0
+    btn.AutoButtonColor = false
+    btn.Text = ""
+    btn.Parent = frame
+    btn.ZIndex = 3
+
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(40,40,45)
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,120,255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0,200,255))
+    }
+    gradient.Rotation = 0
+    gradient.Parent = btn
+
+    local icon = Instance.new("ImageLabel")
+    icon.BackgroundTransparency = 1
+    icon.Image = iconAsset
+    icon.Size = UDim2.new(0,28,0,28)
+    icon.Position = UDim2.new(0.5,-14,0.5,-14)
+    icon.ZIndex = 4
+    icon.Parent = btn
+
+    
+    task.spawn(function()
+        while true do
+            for i = 0,360,1 do
+                gradient.Rotation = i
+                task.wait(0.02)
+            end
+        end
+    end)
+
+    
+    local normalSize = size
+    local hoverSize = UDim2.new(size.X.Scale * 1.04, size.X.Offset, size.Y.Scale * 1.11, size.Y.Offset)
+    local normalPos = position
+    local hoverPos = UDim2.new(
+        normalPos.X.Scale - (hoverSize.X.Scale - normalSize.X.Scale)/2,
+        normalPos.X.Offset - (hoverSize.X.Offset - normalSize.X.Offset)/2,
+        normalPos.Y.Scale - (hoverSize.Y.Scale - normalSize.Y.Scale)/2,
+        normalPos.Y.Offset - (hoverSize.Y.Offset - normalSize.Y.Offset)/2
+    )
+
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.22), {
+            Size = hoverSize,
+            Position = hoverPos,
+            BackgroundTransparency = 0.05
+        }):Play()
+    end)
+
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.22), {
+            Size = normalSize,
+            Position = normalPos,
+            BackgroundTransparency = 0
+        }):Play()
+    end)
+
+    return btn, icon
+end
+
+local BYPASS_ICON_ASSET_ID = "rbxassetid://98712755979169"
+local bypassButton, bypassIcon = createGradientButton(UDim2.new(0.5,0,0,45), UDim2.new(0.25,0,0.75,0), BYPASS_ICON_ASSET_ID)
+
+
+local RESET_ICON_ASSET_ID = "rbxassetid://89515271880693" -- replace with your asset
+local resetButton, resetIcon = createGradientButton(UDim2.new(0,45,0,45), UDim2.new(0, bypassButton.Position.X.Offset + bypassButton.Size.X.Offset + 350, 0.75, 0), RESET_ICON_ASSET_ID)
+
+
+local function sendRandomMessage()
+    if #randomMessages == 0 then return end
+    local msg = randomMessages[math.random(1,#randomMessages)]
+    local ok,channel = pcall(function() return TextChatService.TextChannels:FindFirstChild("RBXGeneral") end)
+    if ok and channel and channel.SendAsync then
+        pcall(function() channel:SendAsync(msg) end)
+    else
+        local event = game.ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+        if event and event:FindFirstChild("SayMessageRequest") then
+            pcall(function() event.SayMessageRequest:FireServer(msg,"All") end)
+        end
+    end
+end
+resetButton.MouseButton1Click:Connect(sendRandomMessage)
+
+
+local function sendBypassed()
+    local text = box.Text
+    if text ~= "" then
+        local converted = convertToUnicode(text)
+        local ok,channel = pcall(function() return TextChatService.TextChannels:FindFirstChild("RBXGeneral") end)
+        if ok and channel and channel.SendAsync then
+            pcall(function() channel:SendAsync(converted) end)
+        else
+            local event = game.ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+            if event and event:FindFirstChild("SayMessageRequest") then
+                pcall(function() event.SayMessageRequest:FireServer(converted,"All") end)
+            end
+        end
+        box.Text = ""
+    end
+end
+bypassButton.MouseButton1Click:Connect(sendBypassed)
+box.FocusLost:Connect(function(enterPressed) if enterPressed then sendBypassed() end end)
+
+
+local function tweenObject(obj, properties, time, style, direction)
+    style = style or Enum.EasingStyle.Quad
+    direction = direction or Enum.EasingDirection.Out
+    TweenService:Create(obj, TweenInfo.new(time, style, direction), properties):Play()
+end
+
+
+local isMinimized = false
+local fullSize = UDim2.new(0,450,0,280)
+local minimizedSize = UDim2.new(0,450,0,55)
+local function setInteractable(state)
+    box.Active = state
+    box.TextEditable = state
+    bypassButton.Active = state
+    resetButton.Active = state
+end
+
+closeButtonImg.MouseButton1Click:Connect(function()
+    setInteractable(false)
+    for _, obj in ipairs(frame:GetDescendants()) do
+        if obj:IsA("UIStroke") then
+            TweenService:Create(obj, TweenInfo.new(0.2), {Transparency = 1}):Play()
+        elseif obj:IsA("TextLabel") then
+            TweenService:Create(obj, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        elseif obj:IsA("Frame") or obj:IsA("TextBox") then
+            TweenService:Create(obj, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+        elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+            TweenService:Create(obj, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+        end
+    end
+    task.wait(0.25)
+    local closeTween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+        Size = UDim2.new(0,0,0,0),
+        BackgroundTransparency = 1
+    })
+    closeTween:Play()
+    closeTween.Completed:Wait()
+    gui.Enabled = false
+    gui:Destroy()
+end)
+
+minimizeButtonImg.MouseButton1Click:Connect(function()
+    if not isMinimized then
+        isMinimized = true
+        setInteractable(false)
+
+        TweenService:Create(profileFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(inputFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(bypassButton, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(resetButton, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(betaBadge, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(bypassIcon, TweenInfo.new(0.25), {ImageTransparency = 1}):Play()
+        TweenService:Create(resetIcon, TweenInfo.new(0.25), {ImageTransparency = 1}):Play()
+
+        task.wait(0.25)
+        TweenService:Create(frame, TweenInfo.new(0.3), {Size = minimizedSize}):Play()
+
+        task.wait(0.3)
+        profileFrame.Visible = false
+        inputFrame.Visible = false
+        bypassButton.Visible = false
+        resetButton.Visible = false
+        betaBadge.Visible = false
+
+    else
+        isMinimized = false
+        TweenService:Create(frame, TweenInfo.new(0.3), {Size = fullSize}):Play()
+
+        task.wait(0.15)
+        profileFrame.Visible = true
+        inputFrame.Visible = true
+        bypassButton.Visible = true
+        resetButton.Visible = true
+        betaBadge.Visible = true
+
+        TweenService:Create(profileFrame, TweenInfo.new(0.25), {BackgroundTransparency = 0.1}):Play()
+        TweenService:Create(inputFrame, TweenInfo.new(0.25), {BackgroundTransparency = 0.1}):Play()
+        TweenService:Create(bypassButton, TweenInfo.new(0.25), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(bypassIcon, TweenInfo.new(0.25), {ImageTransparency = 0}):Play()
+        TweenService:Create(resetButton, TweenInfo.new(0.25), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(resetIcon, TweenInfo.new(0.25), {ImageTransparency = 0}):Play()
+        TweenService:Create(betaBadge, TweenInfo.new(0.25), {BackgroundTransparency = 0}):Play()
+
+        setInteractable(true)
+    end
+end)
+
+
+tweenObject(frame, {Size=fullSize},0.4)
